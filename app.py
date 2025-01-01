@@ -12,7 +12,7 @@ from langchain_core.runnables.history import RunnableWithMessageHistory
 from langchain_community.chat_message_histories import ChatMessageHistory
 from dotenv import load_dotenv
 import pickle
-import faiss
+
 
 # Load environment variables
 load_dotenv()
@@ -33,7 +33,7 @@ embeddings = HuggingFaceEmbeddings(model_name="all-MiniLM-L6-v2")
 
 # Prompts
 system_prompt = (
-    "You are a virtual assistant for RGUKT Basar. Your goal is to answer questions clearly and accurately based on the provided context. "
+    "You are a virtual assistant for RGUKT Basar named RGUKT InfoGuru. Your goal is to answer questions clearly and accurately based on the provided context. "
     "If you don't know the answer or the information is unavailable in the provided context, respond with: 'I'm sorry, I don't have that information right now.' "
     "Use concise language wherever possible, but when additional explanation is necessary, provide as much detail as needed to fully answer the query. "
     "For ambiguous questions, politely ask for clarification or provide the closest relevant information."
@@ -42,7 +42,6 @@ system_prompt = (
     "Remember to keep responses formal yet approachable, ensuring clarity for students, faculty, and visitors."
 )
 
-
 contextualize_q_system_prompt = (
     "You are tasked with improving user queries about RGUKT Basar to ensure they are clear and self-contained. "
     "Given the chat history and the latest user question, reformulate the question to be standalone, so it can be understood without the chat history. "
@@ -50,35 +49,30 @@ contextualize_q_system_prompt = (
     "For ambiguous or incomplete questions, use the chat history to make the question precise while retaining its original intent."
 )
 
-qa_prompt = ChatPromptTemplate.from_messages(
-    [
-        ("system", system_prompt),
-        MessagesPlaceholder("chat_history"),
-        ("human", "{input}"),
-    ]
-)
+qa_prompt = ChatPromptTemplate.from_messages([
+    ("system", system_prompt),
+    MessagesPlaceholder("chat_history"),
+    ("human", "{input}"),
+])
 
-contextualize_q_prompt = ChatPromptTemplate.from_messages(
-    [
-        ("system", contextualize_q_system_prompt),
-        MessagesPlaceholder("chat_history"),
-        ("human", "{input}"),
-    ]
-)
+contextualize_q_prompt = ChatPromptTemplate.from_messages([
+    ("system", contextualize_q_system_prompt),
+    MessagesPlaceholder("chat_history"),
+    ("human", "{input}"),
+])
 
-# Initialize session history
+
+# Initialize session state for messages and history
 if "chat_history" not in st.session_state:
     st.session_state.chat_history = ChatMessageHistory()
 
-if "input_text" not in st.session_state:
-    st.session_state.input_text = ""
-
-if "last_query" not in st.session_state:
-    st.session_state.last_query = None
+if "messages" not in st.session_state:
+    st.session_state["messages"] = [
+        {"role": "assistant", "content": "Hi, I'm RGUKT InfoGuru! How can I help you today?"}
+    ]
 
 # Load vector database
 def load_vector_database():
-    st.write("Loading vector database...")
     vector_store = FAISS.load_local(INDEX_FILE, embeddings, allow_dangerous_deserialization=True)
     with open(METADATA_FILE, "rb") as f:
         metadata = pickle.load(f)
@@ -102,50 +96,23 @@ conversational_rag_chain = RunnableWithMessageHistory(
 )
 
 # Streamlit UI
-st.title("RGUKT InfoGuru")
-st.markdown("Your personal assistant for RGUKT Basar queries.")
+st.markdown(
+    "<h1 style='text-align: center;'>RGUKT InfoGuru</h1>", 
+    unsafe_allow_html=True
+)
 
-# Styles for user and assistant messages
-HUMAN_STYLE = "background-color: #f0f0f0; padding: 10px; margin: 5px; border-radius: 5px; text-align: left;"
-AI_STYLE = "background-color: #d0e6ff; padding: 10px; margin: 5px; border-radius: 5px; text-align: left;"
+# Display chat history using st.chat_message
+for msg in st.session_state.messages:
+    st.chat_message(msg["role"]).write(msg['content'])
 
-# Build the chat history as a single HTML block
-chat_html = """
-<div style="max-height: 400px; overflow-y: auto; padding: 10px; border: 1px solid #ccc; border-radius: 5px;">
-"""
+# Input box for user query
+if prompt := st.chat_input(placeholder="Ask me anything about RGUKT Basar..."):
+    st.session_state.messages.append({"role": "user", "content": prompt})
+    st.chat_message("user").write(prompt)
 
-for message in st.session_state.chat_history.messages:
-    if isinstance(message, HumanMessage):
-        chat_html += f'<div style="{HUMAN_STYLE}"><strong>User:</strong> {message.content}</div>'
-    elif isinstance(message, AIMessage):
-        chat_html += f'<div style="{AI_STYLE}"><strong>Assistant:</strong> {message.content}</div>'
-
-chat_html += "</div>"
-
-# Render the chat history
-st.markdown(chat_html, unsafe_allow_html=True)
-
-# Input box at the bottom
-input_query = st.text_input("Type your query here...", value=st.session_state.input_text)
-
-if input_query and input_query != st.session_state.last_query:
-    st.session_state.last_query = input_query  # Track the last query
-
-    # Generate response
-    response = conversational_rag_chain.invoke(
-        {"input": input_query},
-        config={"configurable": {"session_id": "rgukt_chat_session"}}
-    )
+    # Use the RAG chain for response generation
+    response = conversational_rag_chain.invoke({"input": prompt}, config={"configurable": {"session_id": "rgukt_chat_session"}})
     response_text = response["answer"]
 
-    print(response_text)
-
-    # Add messages to chat history
-    st.session_state.chat_history.add_message(HumanMessage(content=input_query))
-    st.session_state.chat_history.add_message(AIMessage(content=response_text))
-
-    # Clear input text
-    st.session_state.input_text = ""
-
-    # Refresh the interface
-    st.rerun()
+    st.session_state.messages.append({"role": "assistant", "content": response_text})
+    st.chat_message("assistant").write(response_text)
