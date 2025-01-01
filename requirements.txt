@@ -8,6 +8,11 @@ langchain_chroma                  # Chroma vector store integration for LangChai
 langchain_groq                    # Groq integration for LangChain
 langchain_core
 
+#langchain>=0.0.260
+#sentence-transformers>=2.2.2
+transformers>=4.30.2
+
+
 # Embedding and vector storage
 faiss-cpu                         # FAISS for efficient vector similarity search
 sentence_transformers             # Pretrained embeddings for text processing
@@ -56,4 +61,4 @@ notebook
 jupyter
 
 # adding these module, while starting the virtual environment it gave errors
-
+tf_keras
