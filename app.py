@@ -26,11 +26,11 @@ METADATA_FILE = os.path.join(TRAINED_DATA_PATH, "faiss_metadata.pkl")
 # API Keys
 # os.environ['GROQ_API_KEY'] = os.getenv("GROQ_API_KEY")
 # os.environ["HF_TOKEN"] = os.getenv("HF_TOKEN")
-HF_TOKEN = st.secrets["HF_TOKEN"]
-GORQ_API_KEY = st.secrets["GROQ_API_KEY"]
+os.environ["HF_TOKEN"] = st.secrets["HF_TOKEN"]
+os.environ['GROQ_API_KEY'] = st.secrets["GROQ_API_KEY"]
 
 # Set up LLM and embeddings
-llm = ChatGroq(groq_api_key=os.getenv("GROQ_API_KEY"), model_name="llama-3.3-70b-versatile")
+llm = ChatGroq(groq_api_key=st.secrets["GROQ_API_KEY"], model_name="llama-3.3-70b-versatile")
 embeddings = HuggingFaceEmbeddings(model_name="all-MiniLM-L6-v2")
 
 # Prompts
