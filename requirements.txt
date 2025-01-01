@@ -61,4 +61,5 @@ notebook
 jupyter
 
 # adding these module, while starting the virtual environment it gave errors
+tf_keras
 
