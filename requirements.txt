@@ -1,0 +1,59 @@
+# Core LangChain functionality
+langchain                         # LangChain framework for building language model applications
+langchain-community               # Community extensions for LangChain
+langchain-text-splitters          # Text splitting utilities for LangChain
+langchain-openai                  # OpenAI integration for LangChain
+langchain_huggingface             # Hugging Face models integration for LangChain
+langchain_chroma                  # Chroma vector store integration for LangChain
+langchain_groq                    # Groq integration for LangChain
+langchain_core
+
+# Embedding and vector storage
+faiss-cpu                         # FAISS for efficient vector similarity search
+sentence_transformers             # Pretrained embeddings for text processing
+duckdb                            # Database for vector store
+pandas                            # Data processing and manipulation
+numpy                             # Numerical operations
+
+# Document processing and scraping
+pypdf                             # PDF parsing
+pymupdf                           # Another PDF processing library
+bs4                               # Beautiful Soup for web scraping
+arxiv                             # ArXiv API for research papers
+wikipedia                         # Wikipedia API integration
+unstructured                      # General-purpose document loaders
+youtube_transcript_api            # YouTube transcript retrieval
+pytube                            # YouTube video processing
+validators==0.28.1                # URL and data validation utilities
+
+# Database and SQL
+mysql-connector-python            # MySQL database connector
+SQLAlchemy                        # ORM for database management
+
+# Machine Learning
+tensorflow>=2.16.0                # TensorFlow for deep learning
+scikit-learn                      # Machine learning library
+scikeras                          # SciKeras: bridge between TensorFlow/Keras and scikit-learn
+numexpr                           # For numerical expressions evaluation
+
+# Hugging Face and Model Handling
+huggingface_hub                   # Hugging Face model hub integration
+
+# Visualization and Analysis
+matplotlib                        # Data visualization
+tensorboard                       # Visualization for TensorFlow models
+
+# Streamlit
+streamlit                         # Interactive data app framework
+
+# Environment and Miscellaneous
+python-dotenv                     # Load environment variables from .env files
+ipykernel                         # Jupyter kernel for IPython
+duckduckgo_search==5.3.1b1        # DuckDuckGo search integration
+openai                            # OpenAI API integration
+fpdf                              # Generate PDF files
+notebook
+jupyter
+
+# adding these module, while starting the virtual environment it gave errors
+
