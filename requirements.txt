@@ -1,1 +1,4 @@
 Django==5.1.6
+djangorestframework
+psycopg
+djangorestframework_simplejwt
