@@ -10,4 +10,5 @@ urlpatterns = [
     path('login', AuthenticationView.as_view({'post': 'login'}), name="login"),
     path('logout', AuthenticationView.as_view({'post': 'logout'}), name="logout"),
     path('list', UserViewSet.as_view({'get': 'list'}), name="list"),
+    # path('chat', ChatViewSet.as_view({'post': 'generate_response'}), name="chat"),
 ]

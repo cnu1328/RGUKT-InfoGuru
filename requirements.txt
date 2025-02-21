@@ -2,3 +2,25 @@ Django==5.1.6
 djangorestframework
 psycopg
 djangorestframework_simplejwt
+ipykernel
+
+# Core LangChain functionality
+langchain                         # LangChain framework for building language model applications
+langchain-community               # Community extensions for LangChain
+langchain-text-splitters          # Text splitting utilities for LangChain
+langchain-openai                  # OpenAI integration for LangChain
+langchain_huggingface             # Hugging Face models integration for LangChain
+langchain_chroma                  # Chroma vector store integration for LangChain
+langchain_groq                    # Groq integration for LangChain
+langchain_core
+
+# Embedding and vector storage
+chromadb
+sentence_transformers             # Pretrained embeddings for text processing
+
+
+# Hugging Face and Model Handling
+huggingface_hub                   # Hugging Face model hub integration
+
+# PDF
+pypdf
