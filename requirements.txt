@@ -13,7 +13,7 @@ langchain_huggingface             # Hugging Face models integration for LangChai
 langchain_chroma                  # Chroma vector store integration for LangChain
 langchain_groq                    # Groq integration for LangChain
 langchain_core
-
+ 
 # Embedding and vector storage
 chromadb
 sentence_transformers             # Pretrained embeddings for text processing
