@@ -50,18 +50,45 @@ class ChatServiceImpl(ChatServiceInterface):
             self.chat_dao.save_message(chat, 'user', message)
             self.chat_dao.save_message(chat, 'assistant', response)
 
-            messages = self.chat_dao.get_chat_messages(chat.chat_id)
+            messages = self.chat_dao.get_chat_messages(user_id, chat.chat_id)
 
             return {
                 "user_id": user.id,
                 "email": user.email,
                 "chat_id": chat.chat_id,
                 "chat_name": chat.chat_name,
+                "message": message,
+                "response": response,
                 "messages": [
                     {"role": msg.role, "content": msg.content}
                     for msg in messages
                 ]
             }
 
+        except Exception as e:
+            raise CustomException(detail=str(e), status_code=404)
+        
+    def get_chats_by_user_id(self, user_id):
+        """
+        Returns the Chats of the user
+        """
+
+        try:
+            chats = self.chat_dao.get_chats_by_user(user_id)
+
+            return chats
+        
+        except Exception as e:
+            raise CustomException(detail=str(e), status_code=404)
+
+    def get_messages_by_chat_id(self, user_id, chat_id):
+        """
+        Returns the Messages of the Chat
+        """
+
+        try:
+            messages = self.chat_dao.get_chat_messages(user_id, chat_id)
+            return messages
+            
         except Exception as e:
             raise CustomException(detail=str(e), status_code=404)

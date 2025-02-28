@@ -82,13 +82,32 @@ class ChatDaoImpl(ChatDaoInterface):
         except Exception as e:
             raise CustomException(detail=str(e), status_code=status.HTTP_404_NOT_FOUND)
         
-    def get_chat_messages(self, chat_id):
+    def get_chat_messages(self, user_id, chat_id):
         """
         Retrieves chat messages
         """
         
         try:
+            chat = Chat.objects.filter(id=chat_id, user__id=user_id).first()
+
+            if chat is None:
+                raise CustomException(detail="Chat for this user not found", status_code=status.HTTP_404_NOT_FOUND)
+            
             messages = Message.objects.filter(chat__chat_id=chat_id).order_by("timestamp")
             return messages
+        
         except Exception as e:
             raise CustomException(detail=str(e), status_code=status.HTTP_404_NOT_FOUND)
+
+    def get_chats_by_user(self, user_id):
+        """
+        Retrieves chats by user
+        """
+
+        try:
+            chats = Chat.objects.filter(user__id=user_id).order_by("-created_at")
+
+            return chats
+        except Exception as e:
+            raise CustomException(detail=str(e), status_code=status.HTTP_404_NOT_FOUND)
+        

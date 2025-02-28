@@ -59,3 +59,79 @@ class ChatViewSet(ViewSet):
                 return self.Response(message=str(e), status_code=404)
             
         return self.Response(data=serializer.errors, message="Error Occured", status_code=404)
+
+    @action(methods=['get'], detail=False)
+    def get_chats_by_user_id(self, request, user_id=None):
+        """
+        Returns the Chats of the user
+        Request Params:
+            user_id: Identifies the user
+
+        Response:
+            data: All the chats of the user
+        """
+
+        try:
+
+            if user_id is None:
+                return self.Response(message="User ID is required", status_code=404)
+
+            chats = self.chat_service.get_chats_by_user_id(user_id)
+
+            chat_data = {
+                "user_id": user_id,
+                "chats": [
+                    {
+                        "chat_id": chat.chat_id,
+                        "chat_name": chat.chat_name,
+                        "created_at": chat.created_at
+                    } for chat in chats
+                ]
+            }
+
+            return self.Response(data=chat_data, message="Chats are successfully retrieved", status_code=200)
+
+        except Exception as e:
+            return self.Response(message=str(e), status_code=404)
+
+    @action(methods=['get'], detail=False)
+    def get_messages_by_chat_id(self, request, user_id=None, chat_id=None):
+        """
+        Returns the Messages of the chat
+        Request Params:
+            chat_id: Identifies the chat
+
+        Response:
+            data: All the messages of the chat
+        """
+
+        try:
+            if chat_id is None:
+                return self.Response(message="Chat ID is required", status_code=404)
+            
+            if user_id is None:
+                return self.Response(message="User ID is required", status_code=404)
+            
+            messages = self.chat_service.get_messages_by_chat_id(user_id, chat_id)
+
+            chat_data = {
+                "user_id": user_id,
+                "chat_id": chat_id,
+                "messages": [
+                    {
+                        "role": msg.role,
+                        "content": msg.content,
+                    } for msg in messages
+                ]
+            }
+
+            return self.Response(data=chat_data, message="Messages are successfully retrieved", status_code=200)
+
+        except Exception as e:
+            raise self.Response(message=str(e), status_code=404)
+
+
+
+
+
+
