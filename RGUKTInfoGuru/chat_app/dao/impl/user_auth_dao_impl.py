@@ -40,7 +40,6 @@ class UserAuthDaoImpl(UserAuthDaoInterface):
         Returns:
             User: The newly created user object.
         """
-        print("it is coming here")
         try:
             hashed_password = make_password(password)
 
@@ -76,6 +75,17 @@ class UserAuthDaoImpl(UserAuthDaoInterface):
 
             return user
 
+        except Exception as e:
+            raise CustomException(detail=str(e), status_code=status.HTTP_404_NOT_FOUND)
+        
+    def get_user_by_id(self, user_id):
+        """
+        Retrieves user by id
+        """
+        try:
+            user = User.objects.get(id=user_id)
+            return user
+        
         except Exception as e:
             raise CustomException(detail=str(e), status_code=status.HTTP_404_NOT_FOUND)
 
