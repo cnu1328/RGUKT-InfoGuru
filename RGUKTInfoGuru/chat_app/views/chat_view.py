@@ -5,6 +5,9 @@ from rest_framework import status
 from ..serializers.chat_serailizer import ChatSerializer
 from rest_framework.permissions import IsAuthenticated
 from ..services.impl.chat_service_impl import ChatServiceImpl
+import logging
+
+logger = logging.getLogger(__name__)
 
 class ChatViewSet(ViewSet):
     """
@@ -25,6 +28,8 @@ class ChatViewSet(ViewSet):
             self.initialized = True
             self.Response = CustomResponse()
             self.chat_service = ChatServiceImpl()
+            logger.info("ChatViewSet is initialized successfully")
+
 
 
     @action(methods=['post'], detail=False)
@@ -42,6 +47,7 @@ class ChatViewSet(ViewSet):
             status_code: The status code of the resposne
         """
 
+
         serializer = ChatSerializer(data=request.data)
 
         if serializer.is_valid():
@@ -52,10 +58,14 @@ class ChatViewSet(ViewSet):
                 chat_id = data["chat_id"]
                 message = data["message"]
 
+                logger.info(f"The user with user id {user_id} is asking the chatbot with message {message}")
+                
+
                 result = self.chat_service.generate_response(user_id, chat_id, message)
 
                 return self.Response(data=result, message="ChatBot is successfully Responded", status_code=200)
             except Exception as e:
+                logger.debug(f"An error Occured in ChatViewSet: {str(e)}")
                 return self.Response(message=str(e), status_code=404)
             
         return self.Response(data=serializer.errors, message="Error Occured", status_code=404)
@@ -128,7 +138,7 @@ class ChatViewSet(ViewSet):
             return self.Response(data=chat_data, message="Messages are successfully retrieved", status_code=200)
 
         except Exception as e:
-            raise self.Response(message=str(e), status_code=404)
+            return self.Response(message=str(e), status_code=404)
 
 
 

@@ -3,6 +3,9 @@ from rest_framework import status
 from ...exceptions import CustomException
 from ...models import User, Chat, Message
 from .user_auth_dao_impl import UserAuthDaoImpl
+import logging 
+
+logger = logging.getLogger(__name__)
 
 class ChatDaoImpl(ChatDaoInterface):
     """
@@ -45,11 +48,12 @@ class ChatDaoImpl(ChatDaoInterface):
 
             chat = Chat.objects.create(user=user, chat_name=chat_name)
 
-            print(f"The chat is created with the user {user.email}")
+            logger.info(f"The chat is created with the user {user.email}")
 
             return chat
 
         except Exception as e:
+            logger.debug(f"An error occured in creating chat, {str(e)}")
             raise CustomException(detail=str(e), status_code=status.HTTP_404_NOT_FOUND)
         
     def save_message(self, chat: Chat, role, content):
@@ -66,9 +70,10 @@ class ChatDaoImpl(ChatDaoInterface):
         """
         try:
             message = Message.objects.create(chat=chat, role=role, content=content)
-            print(f"The message is saved. with role {role} and content {content}")
+            logger.info(f"The message is saved. with role {role} and content {content}")
             return message
         except Exception as e:
+            logger.info(f"An error occured in saving message, {str(e)}")
             raise CustomException(detail=str(e), status_code=status.HTTP_404_NOT_FOUND)
         
     def get_chat_by_id(self, chat_id):
@@ -86,17 +91,21 @@ class ChatDaoImpl(ChatDaoInterface):
         """
         Retrieves chat messages
         """
+
+        logger.info("Retrieving chat messages")
         
         try:
-            chat = Chat.objects.filter(id=chat_id, user__id=user_id).first()
+            chat = Chat.objects.filter(chat_id=chat_id, user__id=user_id).first()
 
             if chat is None:
+                logger.info("Chat for this user is not found")
                 raise CustomException(detail="Chat for this user not found", status_code=status.HTTP_404_NOT_FOUND)
             
             messages = Message.objects.filter(chat__chat_id=chat_id).order_by("timestamp")
             return messages
         
         except Exception as e:
+            logger.info(f"An error Occured in getting chat messages: {str(e)}")
             raise CustomException(detail=str(e), status_code=status.HTTP_404_NOT_FOUND)
 
     def get_chats_by_user(self, user_id):

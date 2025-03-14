@@ -4,6 +4,9 @@ from ...exceptions import CustomException
 import logging
 from rest_framework_simplejwt.tokens import RefreshToken
 from ...dao.impl.chat_dao_impl import ChatDaoImpl
+from ...agent.agent_executor import AgentExecutor
+from pprint import pformat
+
 
 logger = logging.getLogger(__name__)
 
@@ -21,6 +24,7 @@ class ChatServiceImpl(ChatServiceInterface):
             self.initialized = True
             self.user_dao = UserAuthDaoImpl()
             self.chat_dao = ChatDaoImpl()
+            self.agent_executor = AgentExecutor()
 
     def generate_response(self, user_id, chat_id, message):
         """
@@ -33,22 +37,29 @@ class ChatServiceImpl(ChatServiceInterface):
         Response:
             str: The response of the Chatbot.
         """
+        logger.info(f"The user with id {user_id} is asking the chatbot with message '{message}'")
 
         try:
             user = self.user_dao.get_user_by_id(user_id)
             if user is None:
+                logger.info("User is not found")
                 raise CustomException(detail="User not found",status_code=404)
-            print(f"The user with email {user.email} is asking the chatbot with message {message}")
 
             if chat_id is None:
-                chat = self.chat_dao.create_chat(user_id)
+
+                chat_name = self.agent_executor.generate_chat_name(message)
+
+                chat = self.chat_dao.create_chat(user_id, chat_name)
             else:
                 chat = self.chat_dao.get_chat_by_id(chat_id)
 
-            response = "Hello, I am ChatBot. How can I help you today?"
+            response = self.agent_executor.execute(message, user_id, chat.chat_id)
+            
+            logger.info(f"Response from the agent: {pformat(response)}")
+            logger.info(f"Response answer from the agent: {response['response']['answer']}")
 
             self.chat_dao.save_message(chat, 'user', message)
-            self.chat_dao.save_message(chat, 'assistant', response)
+            self.chat_dao.save_message(chat, 'assistant', response['response']['answer'])
 
             messages = self.chat_dao.get_chat_messages(user_id, chat.chat_id)
 
@@ -58,7 +69,8 @@ class ChatServiceImpl(ChatServiceInterface):
                 "chat_id": chat.chat_id,
                 "chat_name": chat.chat_name,
                 "message": message,
-                "response": response,
+                "response": response['response']['answer'],
+                "time_taken_seconds": response['time_taken_seconds'],
                 "messages": [
                     {"role": msg.role, "content": msg.content}
                     for msg in messages
@@ -66,6 +78,7 @@ class ChatServiceImpl(ChatServiceInterface):
             }
 
         except Exception as e:
+            logger.info(f"An error occured in {str(e)}")
             raise CustomException(detail=str(e), status_code=404)
         
     def get_chats_by_user_id(self, user_id):
