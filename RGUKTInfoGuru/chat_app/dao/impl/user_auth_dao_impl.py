@@ -46,7 +46,7 @@ class UserAuthDaoImpl(UserAuthDaoInterface):
             user = User.objects.create(
                 email=email,
                 password=hashed_password,
-                user_name=user_name,
+                username=user_name,
                 avatar=avatar
             )
 

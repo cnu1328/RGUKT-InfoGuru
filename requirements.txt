@@ -24,3 +24,5 @@ huggingface_hub                   # Hugging Face model hub integration
 
 # PDF
 pypdf
+
+psycopg2
