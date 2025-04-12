@@ -2,6 +2,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework import status
+import re
 
 class CustomResponse:
     _instance = None
@@ -31,3 +32,9 @@ class CustomResponse:
             "data": data,
             "status_code": status_code
         }, status=status_code)
+
+
+def remove_think_tags(text):
+        pattern = r'<think>.*?</think>'
+        cleaned_text = re.sub(pattern, '', text, flags=re.DOTALL)
+        return cleaned_text.strip()

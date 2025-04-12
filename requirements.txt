@@ -9,15 +9,17 @@ langchain                         # LangChain framework for building language mo
 langchain-community               # Community extensions for LangChain
 langchain-text-splitters          # Text splitting utilities for LangChain
 langchain-openai                  # OpenAI integration for LangChain
-langchain_huggingface             # Hugging Face models integration for LangChain
-langchain_chroma                  # Chroma vector store integration for LangChain
-langchain_groq                    # Groq integration for LangChain
-langchain_core
+langchain-huggingface             # Hugging Face models integration for LangChain
+langchain-chroma                  # Chroma vector store integration for LangChain
+langchain-groq                    # Groq integration for LangChain
+langchain-core
  
-# Embedding and vector storage
-chromadb
-sentence_transformers             # Pretrained embeddings for text processing
 
+# Embedding and vector storage
+torch>=2.0.0
+transformers==4.40.0
+sentence-transformers==2.7.0
+chromadb
 
 # Hugging Face and Model Handling
 huggingface_hub                   # Hugging Face model hub integration
@@ -26,3 +28,5 @@ huggingface_hub                   # Hugging Face model hub integration
 pypdf
 
 psycopg2
+
+chainlit

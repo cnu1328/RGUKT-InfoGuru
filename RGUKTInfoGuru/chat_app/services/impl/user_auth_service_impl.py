@@ -3,6 +3,9 @@ from ...dao.impl.user_auth_dao_impl import UserAuthDaoImpl
 from ...exceptions import CustomException
 import logging
 from rest_framework_simplejwt.tokens import RefreshToken
+from jwt import decode as jwt_decode
+
+from django.conf import settings
 
 logger = logging.getLogger(__name__)
 
@@ -33,7 +36,7 @@ class UserAuthServiceImpl(UserAuthServiceInterface):
             user = self.user_auth_dao.create_user(email, password)
             return user
         except Exception as e:
-            logger.info(f"Exception occured while creating a new author : ", e)
+            logger.info(f"Exception occured while creating a new user : {str(e)}")
             raise CustomException(detail=str(e))
 
     def login(self, email: str, password:str):
@@ -51,3 +54,25 @@ class UserAuthServiceImpl(UserAuthServiceInterface):
         except Exception as e:
             logger.info(f"Exception occured while Logging in : {str(e)}")
             raise CustomException(detail=str(e))
+        
+    def verify_token(self, token):
+        """
+        Verifies the JWT token and returns the user associated with it.
+        """
+
+        try:
+            decoded = jwt_decode(token, settings.SECRET_KEY, algorithms=["HS256"])
+            logger.info(f"Decoded token: {decoded}")
+            user_id = decoded.get("user_id")
+            if not user_id:
+                raise CustomException("Invalid token: No user ID found")
+
+            user = self.user_auth_dao.get_user_by_id(user_id)
+            
+            return {
+                "userId": str(user.id),
+                "email": user.email, 
+            }
+        except Exception as e:
+            raise CustomException(str(e))
+

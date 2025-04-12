@@ -6,6 +6,7 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from ...dao.impl.chat_dao_impl import ChatDaoImpl
 from ...agent.agent_executor import AgentExecutor
 from pprint import pformat
+from ...utils.response import remove_think_tags
 
 
 logger = logging.getLogger(__name__)
@@ -59,7 +60,7 @@ class ChatServiceImpl(ChatServiceInterface):
             logger.info(f"Response answer from the agent: {response['response']['answer']}")
 
             self.chat_dao.save_message(chat, 'user', message)
-            self.chat_dao.save_message(chat, 'assistant', response['response']['answer'])
+            self.chat_dao.save_message(chat, 'assistant', remove_think_tags(response['response']['answer']))
 
             messages = self.chat_dao.get_chat_messages(user_id, chat.chat_id)
 
@@ -68,12 +69,18 @@ class ChatServiceImpl(ChatServiceInterface):
                 "email": user.email,
                 "chat_id": chat.chat_id,
                 "chat_name": chat.chat_name,
+                "created_at": chat.created_at,
                 "message": message,
-                "response": response['response']['answer'],
+                "response": remove_think_tags(response['response']['answer']),
                 "time_taken_seconds": response['time_taken_seconds'],
                 "messages": [
-                    {"role": msg.role, "content": msg.content}
-                    for msg in messages
+                    {
+                        "role": msg.role,
+                        "content": msg.content,
+                        "message_id": msg.message_id,
+                        "created_at": msg.timestamp
+                    }
+                    for msg in list(messages)[-2:]
                 ]
             }
 
@@ -104,4 +111,40 @@ class ChatServiceImpl(ChatServiceInterface):
             return messages
             
         except Exception as e:
+            raise CustomException(detail=str(e), status_code=404)
+        
+    
+    def rename_chat(self, chat_id, chat_name):
+        """
+        Renames the Chat
+        """
+        
+
+        try:
+            chat = self.chat_dao.rename_chat(chat_id, chat_name)
+
+            chatResponse = {
+                "chat_id": chat.chat_id,
+                "chat_name": chat.chat_name,
+                "created_at": chat.created_at
+            }
+
+            return chatResponse
+        
+
+        except Exception as e:
+            logger.info(f"An error occured in remaining chat: {str(e)}")
+            raise CustomException(detail=str(e), status_code=404)
+    
+    def delete_chat(self, chat_id):
+        """
+        Deletes the Chat
+        """
+        
+
+        try:
+            self.chat_dao.delete_chat(chat_id)
+        
+        except Exception as e:
+            logger.info(f"An error occured in deleting chat: {str(e)}")
             raise CustomException(detail=str(e), status_code=404)

@@ -120,3 +120,103 @@ class ChatDaoImpl(ChatDaoInterface):
         except Exception as e:
             raise CustomException(detail=str(e), status_code=status.HTTP_404_NOT_FOUND)
         
+    def rename_chat(self, chat_id, chat_name):
+        """
+        Renames the chat
+        
+        Args: 
+            chat_id (str): The ID of the chat to rename.
+            chat_naem (str): The new name for the chat.
+            
+        """
+
+        try:
+            chat = Chat.objects.get(chat_id=chat_id)
+
+            if(chat is None):
+                logger.info(f"Chat is not found with the given chat id : {chat_id}")
+                raise CustomException(detail="Chat is not found", status_code=status.HTTP_404_NOT_FOUND)
+            
+            chat.chat_name = chat_name
+            chat.save()
+            logger.info(f"Chat is renamed to {chat_name}")
+            return chat
+        except Exception as e:
+            logger.info(f"An error Occured in renaming chat: {str(e)}")
+            raise CustomException(detail=str(e), status_code=status.HTTP_404_NOT_FOUND)
+                
+    def rename_chat(self, chat_id, chat_name):
+        """
+        Renames the chat
+        
+        Args: 
+            chat_id (str): The ID of the chat to rename.
+            chat_naem (str): The new name for the chat.
+            
+        """
+
+        try:
+            chat = Chat.objects.get(chat_id=chat_id)
+
+            if(chat is None):
+                logger.info(f"Chat is not found with the given chat id : {chat_id}")
+                raise CustomException(detail="Chat is not found", status_code=status.HTTP_404_NOT_FOUND)
+            
+            chat.chat_name = chat_name
+            chat.save()
+            logger.info(f"Chat is renamed to {chat_name}")
+            return chat
+        except Exception as e:
+            logger.info(f"An error Occured in renaming chat: {str(e)}")
+            raise CustomException(detail=str(e), status_code=status.HTTP_404_NOT_FOUND)
+                
+    def rename_chat(self, chat_id, chat_name):
+        """
+        Renames the chat
+        
+        Args: 
+            chat_id (str): The ID of the chat to rename.
+            chat_naem (str): The new name for the chat.
+            
+        """
+
+        try:
+            chat = Chat.objects.get(chat_id=chat_id)
+
+            if(chat is None):
+                logger.info(f"Chat is not found with the given chat id : {chat_id}")
+                raise CustomException(detail="Chat is not found", status_code=status.HTTP_404_NOT_FOUND)
+            
+            chat.chat_name = chat_name
+            chat.save()
+            logger.info(f"Chat is renamed to {chat_name}")
+            return chat
+        except Exception as e:
+            logger.info(f"An error Occured in renaming chat: {str(e)}")
+            raise CustomException(detail=str(e), status_code=status.HTTP_404_NOT_FOUND)
+                
+
+    def delete_chat(self, chat_id):
+        """
+        Deletes the chat
+        
+        Args: 
+            chat_id (str): The ID of the chat to rename.
+        """
+
+        try:
+            chat = Chat.objects.get(chat_id=chat_id)
+
+            if(chat is None):
+                logger.info(f"Chat is not found with the given chat_id : {chat_id}")
+                raise CustomException(detail="Chat is not found", status_code=status.HTTP_404_NOT_FOUND)
+            
+            chat.delete()  # This deletes the chat and all related messages due to CASCADE
+
+            logger.info(f"Chat with chat_id {chat_id} deleted successfully.")
+
+        except Exception as e:
+            logger.info(f"An error Occured in deleting chat: {str(e)}")
+            raise CustomException(detail=str(e), status_code=status.HTTP_404_NOT_FOUND)
+                
+    

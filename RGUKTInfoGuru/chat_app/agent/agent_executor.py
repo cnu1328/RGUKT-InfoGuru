@@ -17,12 +17,14 @@ from ..dao.impl.chat_dao_impl import ChatDaoImpl
 from pprint import pformat
 
 from .prompts import Context_Prompt, System_Prompt, Chat_Title_Prompt
+from ..utils.response import remove_think_tags
 
 load_dotenv()
 GROQ_API_KEY = os.getenv("GROQ_API_KEY")
 MODEL_NAME = os.getenv("MODEL_NAME")
 CHROMA_DB_PATH = os.getenv("CHROMA_DB_PATH")
 DATASET_PATH = os.getenv("DATASET_PATH")
+HF_TOKEN=os.getenv("HF_TOKEN")
 
 
 logger = logging.getLogger(__name__)
@@ -174,7 +176,7 @@ class AgentExecutor:
 
             logger.info(f"Generated Chat Name: {response}")
 
-            return response
+            return remove_think_tags(response)
         except Exception as e:
             logger.error(f"An error occured in generating chat name: {str(e)}")
             raise CustomException(detail=str(e), status_code=404)

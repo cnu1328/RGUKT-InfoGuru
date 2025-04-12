@@ -7,6 +7,9 @@ from rest_framework.decorators import action
 from rest_framework import status
 from rest_framework_simplejwt.tokens import RefreshToken
 
+import logging
+
+logger = logging.getLogger(__name__)
 
 class AuthenticationView(ViewSet):
     """
@@ -27,21 +30,32 @@ class AuthenticationView(ViewSet):
             self.Response = CustomResponse()
             self.auth_service = UserAuthServiceImpl()
 
+            logger.info("AuthenticationView is initialized successfully")
+
     @action(methods=['post'], detail=False)
     def signup(self, request):
         """
         Handles User's signup
         """
+
+        logger.info("Signup method is called and validating the request data")
         serializer = SignupSerializer(data=request.data)
 
         if serializer.is_valid():
 
+            logger.info("Request data is validated")
+
+
             try:
+
+                logger.info("Signup serializer is valid")
                 data = serializer.validated_data
 
                 user = self.auth_service.signup(data["email"], data["password"])
 
                 result = UserDataSerializer(instance=user)
+
+                logger.info("User is created successfully")
 
                 return self.Response(data=result.data,message="User is successfully created", success=True, status_code=201)
 
@@ -55,10 +69,13 @@ class AuthenticationView(ViewSet):
         """
         Handles user's Login
         """
+        logger.info("Signin method is called and validating the request data")
         serializer = LoginSerializer(data=request.data)
 
         if serializer.is_valid():
             try:
+
+                logger.info("Login serializer is valided")
                 data = serializer.validated_data
                 user_data = self.auth_service.login(data["email"], data["password"])
 
@@ -66,6 +83,9 @@ class AuthenticationView(ViewSet):
 
                 result["access_token"] = user_data["access_token"]
                 result["refresh_token"] = user_data["refresh_token"]
+
+                logger.info("User logged in successfully")
+
 
                 return self.Response(result, message="Successfully Login", success=True, status_code=200)
             except Exception as e:
@@ -93,6 +113,22 @@ class AuthenticationView(ViewSet):
         except Exception as e:
             return self.Response(message=str(e), status_code=status.HTTP_400_BAD_REQUEST)
 
+    @action(methods=['post'], detail=False)
+    def verify_token(self, request):
+        """
+        Verifies the token
+        """
+
+        token = request.data.get("token", None)
+        if not token:
+            return self.Response(message="Token is required", status_code=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            data = self.auth_service.verify_token(token)
+            return self.Response(message="Token is valid", data=data, status_code=status.HTTP_200_OK)
+        except Exception as e:
+            logger.info(f"Token is invalid {str(e)}")
+            return self.Response(message=str(e), status_code=status.HTTP_401_UNAUTHORIZED)
 
 
 

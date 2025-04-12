@@ -2,7 +2,7 @@ from rest_framework.viewsets import ViewSet
 from ..utils.response import CustomResponse
 from rest_framework.decorators import action
 from rest_framework import status
-from ..serializers.chat_serailizer import ChatSerializer
+from ..serializers.chat_serailizer import ChatSerializer, ChatRenameSerializers
 from rest_framework.permissions import IsAuthenticated
 from ..services.impl.chat_service_impl import ChatServiceImpl
 import logging
@@ -80,6 +80,7 @@ class ChatViewSet(ViewSet):
         Response:
             data: All the chats of the user
         """
+        logger.info(f"Getting the chats of the user with user id {user_id}")
 
         try:
 
@@ -131,6 +132,8 @@ class ChatViewSet(ViewSet):
                     {
                         "role": msg.role,
                         "content": msg.content,
+                        "message_id": msg.message_id,
+                        "created_at": msg.timestamp
                     } for msg in messages
                 ]
             }
@@ -139,6 +142,62 @@ class ChatViewSet(ViewSet):
 
         except Exception as e:
             return self.Response(message=str(e), status_code=404)
+        
+    @action(methods=['post'], detail=False)
+    def rename_chat(self, request, chat_id=None):
+        """
+        Renames the chat
+        Request Params:
+            chat_id: Identifies the chat
+            chat_name: The new name of the chat
+            
+        Response:
+            data: The renamed chat
+            message: The message of the response
+            status_code: The status code of the response
+        """
+        
+        chat_name = request.data.get("chat_name", None)
+
+        if chat_id is None:
+            return self.Response(message="Chat ID is required", status_code=404)
+        
+        if chat_name is None: 
+            return self.Response(message="Chat Name is required", status_code=404)
+        
+        try:
+            chat = self.chat_service.rename_chat(chat_id, chat_name)
+
+            return self.Response(data=chat, message="Chat is successfully renamed", status_code=200)
+        except Exception as e:
+            logger.info(f"An error Occured in ChatViewSet: {str(e)}")
+            return self.Response(message=str(e), status_code=404)
+        
+    def delete_chat(self, request, chat_id=None):
+        
+        """
+        Deletes the chat
+        Request Params:
+            chat_id: Identifies the chat
+            
+        Response:
+            message: The message of the response
+            status_code: The status code of the response
+        """
+
+        if chat_id is None:
+            return self.Response(message="Chat ID is required", status_code=404)
+        
+        try:
+            self.chat_service.delete_chat(chat_id)
+
+            return self.Response(message="Chat is successfully deleted", status_code=200)
+        except Exception as e:
+            logger.info(f"An error Occured in ChatViewSet: {str(e)}")
+            return self.Response(message=str(e), status_code=404)
+
+
+
 
 
 

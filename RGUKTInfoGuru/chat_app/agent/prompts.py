@@ -85,16 +85,17 @@ Chat_Title_Prompt = ChatPromptTemplate.from_template(
     - **Use clear, formal yet approachable language** suitable for professional or educational contexts.
     - **Avoid overly generic titles** (e.g., "General Question", "Help needed"). Instead, aim for specific and descriptive titles.
     - **Capitalize each significant word** in the title (Title Case).
+    - Ensure that the title should be generated only title, it should not with **Title**, or "Title". Just give me title with no questions or mardown stylings.
 
     ### Examples:
 
     | User Message / Query                                           | Generated Chat Title                 |
     |----------------------------------------------------------------|--------------------------------------|
-    | "Can you explain eligibility criteria for RGUKT Basar?"        | "RGUKT Basar Eligibility Criteria"   |
-    | "What courses are offered in B.Tech at RGUKT?"                 | "B.Tech Courses at RGUKT"            |
-    | "Tell me about hostel facilities available at RGUKT Basar."    | "Hostel Facilities at RGUKT Basar"   |
-    | "How do I apply for admission to RGUKT?"                       | "RGUKT Admission Application Process"|
-    | "When does the academic year start at RGUKT Basar?"            | "RGUKT Basar Academic Year Schedule" |
+    | "Can you explain eligibility criteria for RGUKT Basar?"        | RGUKT Basar Eligibility Criteria   |
+    | "What courses are offered in B.Tech at RGUKT?"                 | B.Tech Courses at RGUKT            |
+    | "Tell me about hostel facilities available at RGUKT Basar."    | Hostel Facilities at RGUKT Basar   |
+    | "How do I apply for admission to RGUKT?"                       | RGUKT Admission Application Process|
+    | "When does the academic year start at RGUKT Basar?"            | RGUKT Basar Academic Year Schedule |
 
     <context>
     {context}
