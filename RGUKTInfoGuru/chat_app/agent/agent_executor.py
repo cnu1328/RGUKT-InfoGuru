@@ -15,6 +15,7 @@ from langchain_core.runnables.history import RunnableWithMessageHistory
 from langchain_chroma import Chroma
 from ..dao.impl.chat_dao_impl import ChatDaoImpl
 from pprint import pformat
+from ..utils.utils import MODELS
 
 from .prompts import Context_Prompt, System_Prompt, Chat_Title_Prompt
 from ..utils.response import remove_think_tags
@@ -50,27 +51,29 @@ class AgentExecutor:
             self.Response = CustomResponse()
             self.chat_dao = ChatDaoImpl()
 
-            self.llm = ChatGroq(
-                groq_api_key=GROQ_API_KEY,
-                model_name=MODEL_NAME
-            )
-
             self.embeddings = HuggingFaceEmbeddings(model_name="all-MiniLm-L6-v2")
-
             self.vectordb = self.load_chroma_db()
-
             self.retriever = self.vectordb.as_retriever()
-
-            self.history_aware_retriever = create_history_aware_retriever(self.llm, self.retriever, Context_Prompt)
-
-            self.document_chain = create_stuff_documents_chain(self.llm, System_Prompt)
-
-            self.rag_chain = create_retrieval_chain(self.history_aware_retriever, self.document_chain)
-
             self.chat_history = ChatMessageHistory()
+            self.llm = ChatGroq(groq_api_key=GROQ_API_KEY, model_name=MODEL_NAME)
 
+            self.model_chains = {}
+
+            for model in MODELS:
+                llm = ChatGroq(groq_api_key=GROQ_API_KEY, model_name=model)
+                history_aware_retriever = create_history_aware_retriever(llm, self.retriever, Context_Prompt)
+                document_chain = create_stuff_documents_chain(llm, System_Prompt)
+                rag_chain = create_retrieval_chain(history_aware_retriever, document_chain)
+
+                self.model_chains[model] = rag_chain
+
+            logger.info("All models initialized successfully.")
             logger.info("AgentExecutor is initialized successfully")
 
+
+    @classmethod
+    def get_instance(cls):
+        return cls.__new__(cls)
 
     def load_chroma_db(self):
         """
@@ -109,7 +112,7 @@ class AgentExecutor:
             logger.info(f"An Exception occured while retrieving chat messages {str(e)}")
             raise CustomException(detail=str(e), status_code=404)
 
-    def execute(self, message, user_id, chat_id):
+    def execute(self, message, user_id, chat_id, model=MODELS[0]):
         """
         Executes the llm model and generates the response.
         
@@ -121,12 +124,15 @@ class AgentExecutor:
             str: The response of the Chatbot.
         """
 
-        logger.info(f"Executing the model with message {message}")
+        logger.info(f"Executing model '{model}' with message: {message}")
+
+        if model not in self.model_chains:
+            raise CustomException(f"Model {model} is not supported", 400)
 
         try:
 
-            self.rag_agent = RunnableWithMessageHistory(
-                self.rag_chain,
+            self.deepseek_rag_agent = RunnableWithMessageHistory(
+                self.model_chains[model],
                 get_session_history=lambda session_id: self.get_session_history(user_id, session_id),
                 input_messages_key="input",
                 history_messages_key="chat_history",
@@ -135,7 +141,7 @@ class AgentExecutor:
 
             start_time = time.process_time()
 
-            response_content = self.rag_agent.invoke(
+            response_content = self.deepseek_rag_agent.invoke(
                 {
                     "input": message
                 },

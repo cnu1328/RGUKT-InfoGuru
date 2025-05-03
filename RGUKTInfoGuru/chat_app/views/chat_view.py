@@ -57,11 +57,12 @@ class ChatViewSet(ViewSet):
                 user_id = data["user_id"]
                 chat_id = data["chat_id"]
                 message = data["message"]
+                model = data["model"]
 
-                logger.info(f"The user with user id {user_id} is asking the chatbot with message {message}")
+                logger.info(f"The user with user id {user_id} is asking the chatbot with message {message} using model {model}")
                 
 
-                result = self.chat_service.generate_response(user_id, chat_id, message)
+                result = self.chat_service.generate_response(user_id, chat_id, message, model)
 
                 return self.Response(data=result, message="ChatBot is successfully Responded", status_code=200)
             except Exception as e:
@@ -118,7 +119,7 @@ class ChatViewSet(ViewSet):
 
         try:
             if chat_id is None:
-                return self.Response(message="Chat ID is required", status_code=404)
+                return self.Response(message="Chat ID is required. It is in get_messages_by_chat_id", status_code=404)
             
             if user_id is None:
                 return self.Response(message="User ID is required", status_code=404)

@@ -13,9 +13,8 @@ urlpatterns = [
     path('auth/logout', AuthenticationView.as_view({'post': 'logout'}), name="logout"),
     path('list', UserViewSet.as_view({'get': 'list'}), name="list"),
     path('ask', ChatViewSet.as_view({'post': 'chat'}), name="ask"),
-    path('chats/<uuid:user_id>', ChatViewSet.as_view({'get': 'get_chats_by_user_id'}), name="chats"),
     path('messages/<uuid:user_id>/<uuid:chat_id>', ChatViewSet.as_view({'get': 'get_messages_by_chat_id'}), name="messages"),
+    path('chats/chat/<uuid:user_id>', ChatViewSet.as_view({'get': 'get_chats_by_user_id'}), name="chats"),
     path('chat/rename/<uuid:chat_id>', ChatViewSet.as_view({'put': 'rename_chat'}), name="rename_chat"),
     path('chat/delete/<uuid:chat_id>', ChatViewSet.as_view({'delete': 'delete_chat'}), name="delete_chat")
-
 ]

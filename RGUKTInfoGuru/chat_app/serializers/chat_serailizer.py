@@ -8,6 +8,7 @@ class ChatSerializer(serializers.Serializer):
     user_id = serializers.UUIDField()
     chat_id = serializers.UUIDField(required=False, allow_null=True) 
     message = serializers.CharField()
+    model = serializers.CharField()
 
 class ChatRenameSerializers(serializers.Serializer):
     """

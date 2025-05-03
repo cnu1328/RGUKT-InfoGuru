@@ -25,9 +25,9 @@ class ChatServiceImpl(ChatServiceInterface):
             self.initialized = True
             self.user_dao = UserAuthDaoImpl()
             self.chat_dao = ChatDaoImpl()
-            self.agent_executor = AgentExecutor()
+            self.agent_executor = AgentExecutor.get_instance()
 
-    def generate_response(self, user_id, chat_id, message):
+    def generate_response(self, user_id, chat_id, message, model):
         """
         Generates the response for the user's chat
         
@@ -54,7 +54,7 @@ class ChatServiceImpl(ChatServiceInterface):
             else:
                 chat = self.chat_dao.get_chat_by_id(chat_id)
 
-            response = self.agent_executor.execute(message, user_id, chat.chat_id)
+            response = self.agent_executor.execute(message, user_id, chat.chat_id, model)
             
             logger.info(f"Response from the agent: {pformat(response)}")
             logger.info(f"Response answer from the agent: {response['response']['answer']}")
